@@ -5,7 +5,7 @@ To test the app, copy and paste a web image on the input bar(make sure is is in 
 
 ### Preview
 
-- Live Site URL: (https://tabetommy.github.io/fylo-dark-theme-landing-page-master/)
+- Live Site URL: (https://tabetommy.github.io/facerecognition/)
 
 
 ### Built with
