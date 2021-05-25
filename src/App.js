@@ -1,25 +1,69 @@
-import logo from './logo.svg';
+import React,{Component} from 'react';
+import Particles from 'react-particles-js'
+import Clarifai from 'clarifai';
+import Logo from'./components/Logo/Logo';
+import ImageLinkForm from'./components/ImageLinkForm/ImageLinkForm';
+import FaceReg from'./components/FaceReg/FaceReg';
 import './App.css';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+
+const app = new Clarifai.App({
+ apiKey: "a9613b4d271146afae975180c8a77eb1",
+});
+
+class App extends Component{
+  constructor(){
+    super()
+    this.state={
+      input:'',
+      imageUrl:'',
+      box:{},
+    }
+  }
+
+  calculateFaceLocation=(data)=>{
+    const clarifaiFace=data.outputs[0].data.regions[0].region_info.bounding_box;
+    const image= document.getElementById('inputImage')
+    const width=Number(image.width)
+    const height=Number(image.height)
+    return{
+      leftCol:clarifaiFace.left_col*width,
+      topRow:clarifaiFace.top_row*height,
+      rightCol:width-(clarifaiFace.right_col*width),
+      bottomRow:height-(clarifaiFace.bottom_row*height)
+    }
+  }
+
+  displayFaceBox=(box)=>{
+    this.setState({box: box})
+  }
+
+  onInputChange=(event)=>{
+    this.setState({input:event.target.value})
+  }
+  onButtonSubmit = () => {
+   this.setState({imageUrl:this.state.input});
+   app.models
+  .predict(Clarifai.FACE_DETECT_MODEL,this.state.input)
+    .then(response=> this.displayFaceBox(this.calculateFaceLocation(response)))
+    .catch((err) => {
+     console.log(err);
+    });
+  };
+
+  render(){
+    return(
+      <div>
+      <Particles className='particles'/>
+      <Logo/>
+      <ImageLinkForm 
+      onInputChange={this.onInputChange}
+      onButtonSubmit={this.onButtonSubmit}/>
+      <FaceReg box={this.state.box} imageUrl={this.state.imageUrl}/>  
+      </div>
+      )
+    }
+  }
+ 
 
 export default App;
